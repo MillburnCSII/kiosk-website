@@ -1,95 +1,93 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+import styles from "./page.module.css";
+import Link from "next/link";
 
-export default function Home() {
+export default async function Home({ params, searchParams }) {
+  const page = parseInt(searchParams.page ?? "0", 10);
+  console.log(page);
+  const pageSize = 5;
+
+  const data = await getData(page);
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.js</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
+    <main className={styles.records}>
+      <h1>Records</h1>
+      <div>
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Number</th>
+              <th scope="col">Student ID</th>
+              <th scope="col">Previous Status</th>
+              <th scope="col">New Status</th>
+              <th scope="col">Time</th>
+              <th scope="col">Kiosk Name</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.records.map((record) => (
+              <tr key={record.number}>
+                <td>{record.number}</td>
+                <td>{record.id}</td>
+                <td>{record.prev_status}</td>
+                <td>{record.new_status}</td>
+                <td>{new Date(record.time).toLocaleString("en-US", { timeZone: "America/New_York" })}</td>
+                <td>{record.kiosk_name}</td>
+              </tr>
+            ))}
+            {[...Array(pageSize - data.records.length)].map((_, i) => (
+              <tr key={i} className={styles.disabled}>
+                {[...Array(6)].map((_, i) => (
+                  <td key={i}>N/A</td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colSpan="6">
+                <nav>
+                  <div>
+                    <p>
+                      Showing <span>{page * pageSize + 1}</span> to <span>{(page + 1) * pageSize}</span> of <span>{data.count}</span> results
+                    </p>
+                  </div>
+                  <div>
+                    <Link href={`/?page=${page - 1}`} className={page <= 0 ? styles.disabled : ""}>
+                      {" "}
+                      Previous{" "}
+                    </Link>
+                    <Link href={`/?page=${page + 1}`} className={page + 1 * pageSize >= data.count ? styles.disabled : ""}>
+                      {" "}
+                      Next{" "}
+                    </Link>
+                  </div>
+                </nav>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
       </div>
     </main>
-  )
+  );
+}
+
+async function getData(pageNumber) {
+  const page = await fetch(`http://localhost:8080/listRecords?page=${pageNumber}`);
+  const count = await fetch("http://localhost:8080/records");
+  // The return value is *not* serialized
+  // You can return Date, Map, Set, etc.
+
+  if (!page.ok) {
+    // This will activate the closest `error.js` Error Boundary
+    throw new Error("Failed to fetch page");
+  }
+  if (!count.ok) {
+    // This will activate the closest `error.js` Error Boundary
+    throw new Error("Failed to fetch count");
+  }
+
+  return {
+    records: await page.json(),
+    count: await count.json(),
+  };
 }
