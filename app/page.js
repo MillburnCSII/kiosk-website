@@ -1,17 +1,19 @@
 import styles from "./page.module.css";
 import Link from "next/link";
+import FilterComponent from "./FilterComponent.js";
 
 export default async function Home({ params, searchParams }) {
   const page = parseInt(searchParams.page ?? "0", 10);
   console.log(page);
   const pageSize = 5;
 
-  const data = await getData(page);
+  const data = await getData(searchParams);
 
   return (
-    <main className={styles.records}>
-      <h1>Records</h1>
-      <div>
+    <main className={styles.recordsWrapper}>
+      <h1 className={styles.header}>Records</h1>
+      <FilterComponent />
+      <div className={styles.records}>
         <table>
           <thead>
             <tr>
@@ -71,8 +73,8 @@ export default async function Home({ params, searchParams }) {
   );
 }
 
-async function getData(pageNumber) {
-  const page = await fetch(`http://localhost:8080/listRecords?page=${pageNumber}`);
+async function getData(searchParams) {
+  const page = await fetch(`http://localhost:8080/listRecords?${new URLSearchParams(searchParams).toString()}`);
   const count = await fetch("http://localhost:8080/records");
   // The return value is *not* serialized
   // You can return Date, Map, Set, etc.
