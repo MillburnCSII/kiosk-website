@@ -32,7 +32,7 @@ export default function Gallery() {
     });
     console.log(urlSearchParams.toString());
     router.push(`/?${urlSearchParams.toString()}`);
-    router.refresh();
+    // router.refresh();
   };
 
   return (
