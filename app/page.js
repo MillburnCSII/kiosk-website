@@ -1,25 +1,36 @@
-"use client";
+// "use client";
 import styles from "./page.module.css";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import FilterComponent from "./FilterComponent.js";
-import GoogleButton from "react-google-button";
-import { signIn } from "next-auth/react";
+import SignOutComponent from "./SignOutComponent.js";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "./api/auth/[...nextauth]/route";
 
 // export default async function Home() {
 //   return <GoogleButton onClick={() => signIn("google")}>signin</GoogleButton>;
 // }
 
 export default async function Home({ params, searchParams }) {
+  const session = await getServerSession(authOptions);
+  // console.log(data);
+  console.log(session);
+
+  if (!session) {
+    redirect("/api/auth/signin");
+  }
+
   const page = parseInt(searchParams.page ?? "0", 10);
   console.log(page);
   const pageSize = 5;
-
   const data = await getData(searchParams);
 
   return (
     <main className={styles.recordsWrapper}>
-      <GoogleButton onClick={() => signIn("google")}>signin</GoogleButton>
-      <h1 className={styles.header}>Records</h1>
+      <div className={styles.header}>
+        <h1>Records</h1>
+        <SignOutComponent />
+      </div>
       <FilterComponent />
       <div className={styles.records}>
         <table>
@@ -62,25 +73,15 @@ export default async function Home({ params, searchParams }) {
                 <nav>
                   <div>
                     <p>
-                      Showing <span>{page * pageSize + 1}</span> to{" "}
-                      <span>{(page + 1) * pageSize}</span> of{" "}
-                      <span>{data.count}</span> results
+                      Showing <span>{page * pageSize + 1}</span> to <span>{(page + 1) * pageSize}</span> of <span>{data.count}</span> results
                     </p>
                   </div>
                   <div>
-                    <Link
-                      href={`/?page=${page - 1}`}
-                      className={page <= 0 ? styles.disabled : ""}
-                    >
+                    <Link href={`/?page=${page - 1}`} className={page <= 0 ? styles.disabled : ""}>
                       {" "}
                       Previous{" "}
                     </Link>
-                    <Link
-                      href={`/?page=${page + 1}`}
-                      className={
-                        page + 1 * pageSize >= data.count ? styles.disabled : ""
-                      }
-                    >
+                    <Link href={`/?page=${page + 1}`} className={page + 1 * pageSize >= data.count ? styles.disabled : ""}>
                       {" "}
                       Next{" "}
                     </Link>
@@ -96,11 +97,7 @@ export default async function Home({ params, searchParams }) {
 }
 
 async function getData(searchParams) {
-  const page = await fetch(
-    `http://localhost:8080/listRecords?${new URLSearchParams(
-      searchParams
-    ).toString()}`
-  );
+  const page = await fetch(`http://localhost:8080/listRecords?${new URLSearchParams(searchParams).toString()}`);
   const count = await fetch("http://localhost:8080/records");
   // The return value is *not* serialized
   // You can return Date, Map, Set, etc.
