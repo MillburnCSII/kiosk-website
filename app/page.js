@@ -2,8 +2,8 @@
 import styles from "./page.module.css";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import FilterComponent from "./FilterComponent.js";
-import SignOutComponent from "./SignOutComponent.js";
+import FilterComponent from "./components/FilterComponent.js";
+import SignOutComponent from "./components/SignOutComponent.js";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "./api/auth/[...nextauth]/route";
 
@@ -24,7 +24,7 @@ export default async function Home({ params, searchParams }) {
   return (
     <main className={styles.recordsWrapper}>
       <div className={styles.header}>
-        <h1>Records</h1>
+        <h1>Kiosk Records</h1>
         <SignOutComponent />
       </div>
       <FilterComponent />
