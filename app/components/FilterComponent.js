@@ -10,7 +10,9 @@ export default function Gallery() {
   const urlSearchParams = new URLSearchParams(searchParams?.toString());
 
   const [filter, setFilter] = useState(urlSearchParams.get("filterBy") ?? "");
-  const [filterValue, setFilterValue] = useState(urlSearchParams.get("filterValue") ?? "");
+  const [filterValue, setFilterValue] = useState(
+    urlSearchParams.get("filterValue") ?? ""
+  );
 
   const changePath = () => {
     if (filter !== "" && filterValue.trim() === "") {
@@ -46,16 +48,27 @@ export default function Gallery() {
           }}
         >
           <option value="">All</option>
-          <option value="num">Record Number</option>
+          <option value="num">Number</option>
           <option value="id">Student ID</option>
           <option value="prev_status">Previous Status</option>
           <option value="new_status">New Status</option>
           <option value="kiosk_name">Kiosk Name</option>
         </select>
-        {filter === "num" || filter === "id" || filter === "prev_status" || filter === "new_status" ? (
-          <input type="number" value={filterValue} onChange={(e) => setFilterValue(e.target.value)} />
+        {filter === "num" ||
+        filter === "id" ||
+        filter === "prev_status" ||
+        filter === "new_status" ? (
+          <input
+            type="number"
+            value={filterValue}
+            onChange={(e) => setFilterValue(e.target.value)}
+          />
         ) : filter === "kiosk_name" ? (
-          <input type="text" value={filterValue} onChange={(e) => setFilterValue(e.target.value)} />
+          <input
+            type="text"
+            value={filterValue}
+            onChange={(e) => setFilterValue(e.target.value)}
+          />
         ) : (
           <span></span>
         )}

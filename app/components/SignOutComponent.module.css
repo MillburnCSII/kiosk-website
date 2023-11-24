@@ -14,8 +14,10 @@
   font-weight: 500;
   color: #374151;
   background-color: #ffffff;
+  transition: 0.3s;
 }
 
 .signOutButton:hover {
-  background-color: #f9fafb;
+  color: red;
+  background-color: #e6e8eb;
 }
