@@ -1,5 +1,6 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import { useSession } from "next-auth/react";
 
 export const authOptions = {
   providers: [
@@ -9,6 +10,24 @@ export const authOptions = {
       clientSecret: "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",
     }),
   ],
+  callbacks: {
+    async signIn({ user, account, profile, email, credentials }) {
+      let isAllowedToSignIn = false;
+      if (
+        profile.email == "alexandrabunch23@gmail.com" ||
+        profile.email == "eric2008zheng@gmail.com" ||
+        profile.email == "ritvikgupta011@gmail.com" ||
+        profile.email == "xz.wired@gmail.com"
+      ) {
+        isAllowedToSignIn = true;
+      }
+      if (isAllowedToSignIn) {
+        return true;
+      } else {
+        return false;
+      }
+    },
+  },
   secret: process.env.SECRET,
 };
 
