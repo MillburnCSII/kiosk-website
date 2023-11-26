@@ -1,12 +1,10 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import { useSession } from "next-auth/react";
 
 export const authOptions = {
   providers: [
     GoogleProvider({
-      clientId:
-        "501094726325-e97g9drjb6vvdcc1luggr2ibd5amq9a4.apps.googleusercontent.com",
+      clientId: "501094726325-e97g9drjb6vvdcc1luggr2ibd5amq9a4.apps.googleusercontent.com",
       clientSecret: "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",
     }),
   ],
