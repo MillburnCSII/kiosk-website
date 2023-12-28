@@ -30,6 +30,7 @@ export default async function Home({ params, searchParams }) {
       </div>
       <FilterComponent
         values={[
+          { paramName: "", displayName: "Filter By", type: "" },
           { paramName: "num", displayName: "Number", type: "number" },
           { paramName: "id", displayName: "Student ID", type: "number" },
           {
@@ -125,7 +126,7 @@ async function getData(searchParams) {
       searchParams
     ).toString()}`
   );
-  const count = await fetch("http://localhost:8080/records");
+  const count = await fetch(`http://localhost:8080/records?${new URLSearchParams(searchParams).toString()}`);
   // The return value is *not* serialized
   // You can return Date, Map, Set, etc.
 
