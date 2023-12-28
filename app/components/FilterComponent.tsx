@@ -2,7 +2,7 @@
 
 import styles from "./FilterComponent.module.css";
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React from "react";
 
 export default function FilterComponent({
@@ -15,6 +15,7 @@ export default function FilterComponent({
   }[];
 }) {
   const router = useRouter();
+  const pathName = usePathname();
   const searchParams = useSearchParams();
   const urlSearchParams = new URLSearchParams(searchParams?.toString());
 
@@ -24,12 +25,25 @@ export default function FilterComponent({
   );
 
   const changePath = () => {
-    if (filter !== "" && filterValue.trim() === "") {
-      return console.error("Filter value is empty");
+    if (filterValue.trim() === "") {
+      // treat as no filter
+      urlSearchParams.delete("filterBy");
+      urlSearchParams.delete("filterValue");
+      urlSearchParams.delete("comparators");
+      // alert(pathName + "?" + urlSearchParams.toString());
+      router.push(`${pathName}?${urlSearchParams.toString()}`);
+      router.refresh();
+      return;
     }
 
     urlSearchParams.set("filterBy", filter);
     urlSearchParams.set("filterValue", filterValue);
+    if (filter.trim() !== "") {
+      // alert(filter)
+      urlSearchParams.set("comparators", "equals");
+    } else {
+      urlSearchParams.delete("comparators");
+    }
     // remove empty params
     let keysForDel = [];
     urlSearchParams.forEach((value, key) => {
@@ -42,13 +56,20 @@ export default function FilterComponent({
       urlSearchParams.delete(key);
     });
     console.log(urlSearchParams.toString());
-    router.push(`/?${urlSearchParams.toString()}`);
-    // router.refresh();
+    // alert(pathName + "?" + urlSearchParams.toString());
+    // alert(filter)
+    router.push(`${pathName}?${urlSearchParams.toString()}`);
+    router.refresh();
   };
 
   return (
     <div className={styles.wrapper}>
-      <div>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          changePath();
+        }}
+      >
         <select
           value={filter}
           onChange={(e) => {
@@ -87,15 +108,22 @@ export default function FilterComponent({
         ) : (
           <span></span>
         )} */}
-        {values.find((value) => value.paramName === filter)?.type === "" ? <span></span> :
-          <input 
-            type={values.find((value) => value.paramName === filter)?.type ?? "text"}
-            value={filterValue}
-            onChange={(e) => setFilterValue(e.target.value)}
-          />
-        ?? <span></span>}
-        <button onClick={changePath}>Search</button>
-      </div>
+        {values.find((value) => value.paramName === filter)?.type === "" ? (
+          <span></span>
+        ) : (
+          (
+            <input
+              type={
+                values.find((value) => value.paramName === filter)?.type ??
+                "text"
+              }
+              value={filterValue}
+              onChange={(e) => setFilterValue(e.target.value)}
+            />
+          ) ?? <span></span>
+        )}
+        <button type="submit">Search</button>
+      </form>
     </div>
   );
 }
