@@ -4,7 +4,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import FilterComponent from "@/app/components/FilterComponent";
 import SignOutComponent from "@/app/components/SignOutComponent";
-import DeleteKiosk from "@/app/components/DeleteKiosk";
+import DeleteToken from "@/app/components/DeleteToken";
+import ToggleToken from "@/app/components/ToggleToken";
 import AddKiosk from "@/app/components/AddKiosk";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
@@ -32,69 +33,54 @@ export default async function Home({ params, searchParams }) {
       <FilterComponent
         values={[
           { paramName: "", displayName: "Filter By", type: "" },
-          { paramName: "kioskName", displayName: "Kiosk Name", type: "text" },
+          { paramName: "accessToken", displayName: "Access Token", type: "text" },
           {
             paramName: "accessLevel",
             displayName: "Access Level",
             type: "number",
           },
-          { paramName: "privilege", displayName: "Privilege", type: "number" },
-          { paramName: "direction", displayName: "Direction", type: "number" },
-          { paramName: "startHour", displayName: "Start Hour", type: "number" },
-          {
-            paramName: "startMinute",
-            displayName: "Start Minute",
-            type: "number",
-          },
-          { paramName: "endHour", displayName: "End Hour", type: "number" },
-          { paramName: "endMinute", displayName: "End Minute", type: "number" },
         ]}
       />
       <div className={styles.records}>
         <table>
           <thead>
             <tr>
-              <th scope="col">Name</th>
+              <th scope="col">Access Token</th>
               <th scope="col">Access Level</th>
-              <th scope="col">Privilege</th>
-              <th scope="col">Direction</th>
-              <th scope="col">Start Time</th>
-              <th scope="col">End Time</th>
+              <th scope="col"></th> {/* Toggle enabled or disabled*/}
               <th scope="col"></th> {/* Delete button row */}
             </tr>
           </thead>
           <tbody>
             {data.records.map((record) => (
-              <tr key={record.kioskName}>
-                <td>{record.kioskName}</td>
-                <td>{record.accessLevel}</td>
-                <td>{record.privilege}</td>
-                <td>{record.direction}</td>
+              <tr key={record.accessToken}>
+                <td>{record.accessToken}</td>
+                <td>{Math.abs(record.access)}</td>
                 <td>
-                  {record.startHour}:{record.startMinute}
+                  <ToggleToken token={record.accessToken} level={record.access} />
                 </td>
                 <td>
-                  {record.endHour}:{record.endMinute}
-                </td>
-                <td>
-                  <DeleteKiosk kiosk={record.kioskName} />
+                  <DeleteToken token={record.accessToken} />
                 </td>
               </tr>
             ))}
             {[...Array(pageSize - data.records.length)].map((_, i) => (
               <tr key={i} className={styles.disabled}>
-                {[...Array(6)].map((_, i) => (
+                {[...Array(2)].map((_, i) => (
                   <td key={i}>N/A</td>
                 ))}
                 <td>
-                  <DeleteKiosk kiosk="" disabled={true} />
+                  <ToggleToken token="" level={null} disabled={true} />
+                </td>
+                <td>
+                  <DeleteToken token="" disabled={true} />
                 </td>
               </tr>
             ))}
           </tbody>
           <tfoot>
             <tr>
-              <td colSpan={7}>
+              <td colSpan={4}>
                 <nav>
                   <div>
                     <p>
@@ -134,12 +120,12 @@ export default async function Home({ params, searchParams }) {
 
 async function getData(searchParams) {
   const page = await fetch(
-    `http://localhost:8080/listKiosks?${new URLSearchParams(
+    `http://localhost:8080/listTokens?${new URLSearchParams(
       searchParams
     ).toString()}`
   );
   const count = await fetch(
-    `http://localhost:8080/kiosks?${new URLSearchParams(
+    `http://localhost:8080/tokens?${new URLSearchParams(
       searchParams
     ).toString()}`
   );
