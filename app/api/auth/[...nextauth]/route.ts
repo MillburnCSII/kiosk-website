@@ -11,7 +11,7 @@ export const authOptions = {
   callbacks: {
     async signIn({ user, account, profile, email, credentials }) {
       let isAllowedToSignIn = false;
-      if (
+      if ( 
         profile.email == "alexandrabunch23@gmail.com" ||
         profile.email == "eric2008zheng@gmail.com" ||
         profile.email == "ritvikgupta011@gmail.com" ||
