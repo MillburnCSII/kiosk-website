@@ -5,7 +5,8 @@ import { redirect } from "next/navigation";
 import FilterComponent from "./components/FilterComponent";
 import SignOutComponent from "./components/SignOutComponent";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import authOptions from "@/app/api/auth/[...nextauth]/route";
+
 import React from "react";
 
 export default async function Home({ params, searchParams }) {
@@ -14,7 +15,7 @@ export default async function Home({ params, searchParams }) {
   console.log(session);
 
   if (!session) {
-    redirect("/api/auth/signin");
+    redirect("/auth/signin");
   }
 
   const page = parseInt(searchParams.page ?? "0", 10);
@@ -126,7 +127,11 @@ async function getData(searchParams) {
       searchParams
     ).toString()}`
   );
-  const count = await fetch(`http://localhost:8080/records?${new URLSearchParams(searchParams).toString()}`);
+  const count = await fetch(
+    `http://localhost:8080/records?${new URLSearchParams(
+      searchParams
+    ).toString()}`
+  );
   // The return value is *not* serialized
   // You can return Date, Map, Set, etc.
 

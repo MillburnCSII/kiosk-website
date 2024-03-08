@@ -7,7 +7,7 @@ import SignOutComponent from "@/app/components/SignOutComponent";
 import DeleteKiosk from "@/app/components/DeleteKiosk";
 import AddKiosk from "@/app/components/AddKiosk";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import authOptions from "@/app/api/auth/[...nextauth]/route";
 
 export default async function Home({ params, searchParams }) {
   const session = await getServerSession(authOptions);
@@ -15,7 +15,7 @@ export default async function Home({ params, searchParams }) {
   console.log(session);
 
   if (!session) {
-    redirect("/api/auth/signin");
+    redirect("/auth/signin");
   }
 
   const page = parseInt(searchParams.page ?? "0", 10);

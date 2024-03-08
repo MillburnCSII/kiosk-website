@@ -8,7 +8,7 @@ import DeleteToken from "@/app/components/DeleteToken";
 import ToggleToken from "@/app/components/ToggleToken";
 import AddKiosk from "@/app/components/AddKiosk";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import authOptions from "@/app/api/auth/[...nextauth]/route";
 
 export default async function Home({ params, searchParams }) {
   const session = await getServerSession(authOptions);
@@ -16,7 +16,7 @@ export default async function Home({ params, searchParams }) {
   console.log(session);
 
   if (!session) {
-    redirect("/api/auth/signin");
+    redirect("/auth/signin");
   }
 
   const page = parseInt(searchParams.page ?? "0", 10);
@@ -33,7 +33,11 @@ export default async function Home({ params, searchParams }) {
       <FilterComponent
         values={[
           { paramName: "", displayName: "Filter By", type: "" },
-          { paramName: "accessToken", displayName: "Access Token", type: "text" },
+          {
+            paramName: "accessToken",
+            displayName: "Access Token",
+            type: "text",
+          },
           {
             paramName: "accessLevel",
             displayName: "Access Level",
@@ -57,7 +61,10 @@ export default async function Home({ params, searchParams }) {
                 <td>{record.accessToken}</td>
                 <td>{Math.abs(record.access)}</td>
                 <td>
-                  <ToggleToken token={record.accessToken} level={record.access} />
+                  <ToggleToken
+                    token={record.accessToken}
+                    level={record.access}
+                  />
                 </td>
                 <td>
                   <DeleteToken token={record.accessToken} />

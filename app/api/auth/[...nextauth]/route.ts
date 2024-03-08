@@ -1,33 +1,36 @@
-import NextAuth from "next-auth";
-import GoogleProvider from "next-auth/providers/google";
+import NextAuth, { NextAuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
 
-export const authOptions = {
+const authOptions: NextAuthOptions = {
+  session: {
+    strategy: "jwt",
+  },
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_ID,
-      clientSecret: process.env.GOOGLE_SECRET,
+    CredentialsProvider({
+      type: "credentials",
+      credentials: {},
+      authorize(credentials, req) {
+        const { email, password } = credentials as {
+          email: string;
+          password: string;
+        };
+        if (email !== "john@gmail.com" || password !== "1234") {
+          throw new Error("invalid credentials");
+        }
+
+        // if everything is fine
+        return {
+          id: "1234",
+          name: "John Doe",
+          email: "john@gmail.com",
+          role: "admin",
+        };
+      },
     }),
   ],
-  callbacks: {
-    async signIn({ user, account, profile, email, credentials }) {
-      let isAllowedToSignIn = false;
-      if ( 
-        profile.email == "alexandrabunch23@gmail.com" ||
-        profile.email == "eric2008zheng@gmail.com" ||
-        profile.email == "ritvikgupta011@gmail.com" ||
-        profile.email == "xz.wired@gmail.com"
-      ) {
-        isAllowedToSignIn = true;
-      }
-      if (isAllowedToSignIn) {
-        return true;
-      } else {
-        return false;
-      }
-    },
+  pages: {
+    signIn: "/auth/signin",
   },
-  secret: process.env.SECRET,
 };
 
-const handler = NextAuth(authOptions);
-export { handler as GET, handler as POST };
+export default NextAuth(authOptions);
