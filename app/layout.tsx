@@ -1,5 +1,5 @@
 import "./globals.css";
-import Navbar from "./components/Navbar";
+import Navbar from "./components/Navbar/Navbar";
 
 export const metadata = {
   title: "Kiosk Server Website",

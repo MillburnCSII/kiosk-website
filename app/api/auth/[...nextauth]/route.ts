@@ -1,32 +1,59 @@
 import NextAuth from "next-auth";
-import GoogleProvider from "next-auth/providers/google";
+import CredentialsProvider from "next-auth/providers/credentials";
+
+export const users: Map<
+  String,
+  { id: string; password: string; name: string }
+> = new Map([
+  ["jsmith", { id: "jsmith", password: "password1", name: "John Smith" }],
+  ["jdoe", { id: "jdoe", password: "password2", name: "Jane Doe" }],
+]);
 
 export const authOptions = {
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_ID,
-      clientSecret: process.env.GOOGLE_SECRET,
+    CredentialsProvider({
+      // The name to display on the sign in form (e.g. "Sign in with...")
+      name: "Password",
+      // `credentials` is used to generate a form on the sign in page.
+      // You can specify which fields should be submitted, by adding keys to the `credentials` object.
+      // e.g. domain, username, password, 2FA token, etc.
+      // You can pass any HTML attribute to the <input> tag through the object.
+      credentials: {
+        username: { label: "Username", type: "text", placeholder: "Username" },
+        password: { label: "Password", type: "Password" },
+      },
+
+      async authorize(credentials, req) {
+        // Add logic here to look up the user from the credentials supplied
+
+        if (!users.has(credentials.username)) {
+          return null;
+        }
+        const user = users.get(credentials.username);
+
+        if (user.password !== credentials.password) {
+          return null;
+        }
+
+        return user;
+      },
     }),
   ],
   callbacks: {
     async signIn({ user, account, profile, email, credentials }) {
-      let isAllowedToSignIn = false;
-      if (
-        profile.email == "alexandrabunch23@gmail.com" ||
-        profile.email == "eric2008zheng@gmail.com" ||
-        profile.email == "ritvikgupta011@gmail.com" ||
-        profile.email == "xz.wired@gmail.com"
-      ) {
-        isAllowedToSignIn = true;
-      }
-      if (isAllowedToSignIn) {
-        return true;
-      } else {
-        return false;
-      }
+      return true;
+    },
+    async redirect({ url, baseUrl }) {
+      return baseUrl;
+    },
+    async session({ session, user, token }) {
+      return session;
+    },
+    async jwt({ token, user, account, profile, isNewUser }) {
+      return token;
     },
   },
-  secret: process.env.SECRET,
+  secret: process.env.NEXTAUTH_SECRET,
 };
 
 const handler = NextAuth(authOptions);
